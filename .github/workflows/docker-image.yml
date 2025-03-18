@@ -28,7 +28,7 @@ jobs:
         context: .
         file: ./MinhaApi/Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/minha-api:${{ github.sha }}
+        tags: minha-api:${{ github.sha }}
 
     - name: Logout from Docker Hub
       run: docker logout
