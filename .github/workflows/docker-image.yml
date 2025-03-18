@@ -26,9 +26,9 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: .
-        file: Dockerfile
+        file: ./MinhaApi/Dockerfile
         push: true
-        tags: minha-api:${{ github.sha }}  # Usando o SHA do commit como tag
+        tags: ${{ secrets.DOCKER_USERNAME }}/minha-api:${{ github.sha }}
 
     - name: Logout from Docker Hub
       run: docker logout
