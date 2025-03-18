@@ -7,8 +7,8 @@ EXPOSE 8081
 # Etapa 2: Imagem para o build do código
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["MinhaApi/MinhaApi.csproj", "MinhaApi/"]
-RUN dotnet restore "./MinhaApi/MinhaApi/MinhaApi.csproj"
+COPY "MinhaApi.csproj" "./"
+RUN dotnet restore "./MinhaApi/MinhaApi.csproj"
 COPY . .
 WORKDIR "/src/MinhaApi"
 RUN dotnet build "./MinhaApi.csproj" -c %BUILD_CONFIGURATION% -o /app/build
