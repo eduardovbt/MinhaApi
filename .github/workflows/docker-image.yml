@@ -28,7 +28,7 @@ jobs:
         context: .
         file: Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/minha-api:${{ github.sha }}  # Usando o SHA do commit como tag
+        tags: minha-api:${{ github.sha }}  # Usando o SHA do commit como tag
 
     - name: Logout from Docker Hub
       run: docker logout
