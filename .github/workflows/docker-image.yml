@@ -28,7 +28,7 @@ jobs:
         context: .
         file: ./MinhaApi/Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_POST_PROFILE }}/minha-api:${{ github.sha }}
+        tags: minha-api:${{ github.sha }}
 	platform: linux/amd64  # Especifica a plataforma correta
 
     - name: Logout from Docker Hub
