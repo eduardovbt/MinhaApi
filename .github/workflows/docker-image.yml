@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   pull_request:
     branches:
-      - master   # Dispara quando um PR for aceito para a branch master
+      - master  # Dispara quando um PR for aceito para a branch master
 
 jobs:
   build:
@@ -25,11 +25,10 @@ jobs:
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v2
       with:
-        context: .
-        file: ./MinhaApi/Dockerfile
-        push: true
-        tags: minha-api:${{ github.sha }}
-	platform: linux/amd64  # Especifica a plataforma correta
+        context: ./MinhaApi  # Define o contexto da construção da imagem
+        file: ./MinhaApi/Dockerfile  # Caminho para o Dockerfile dentro do diretório 'MinhaApi'
+        push: true  # Habilita o envio da imagem para o Docker Hub
+        tags: minha-api:${{ github.sha }}  # Usa o sha do commit como tag da imagem
 
     - name: Logout from Docker Hub
       run: docker logout
