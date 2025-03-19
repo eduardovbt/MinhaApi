@@ -12,55 +12,54 @@ on:
       - master  # Isso faz com que o workflow seja acionado quando houver push na branch master
 
 jobs:
-  # Job para rodar os testes
-  test:
+  
+  # Job para rodar o build e os testes
+  build_and_test:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'  # Isso garante que essa parte só será executada em um PR
-
     steps:
-      # Verificar o código do repositório
+      # Step 1: Verificar o código do repositório
       - name: Check out repository
         uses: actions/checkout@v3
 
-      # Configurar o .NET SDK
+      # Step 2: Configurar o .NET SDK
       - name: Set up .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0'
 
-      # Restaurar dependências do projeto
+      # Step 3: Restaurar dependências
       - name: Restore dependencies
         run: dotnet restore "MinhaApi/MinhaApi.csproj"
 
-      # Rodar os testes
+      # Step 4: Rodar os testes
       - name: Run tests
-        run: dotnet test "MinhaApi.Tests/MinhaApi.Tests.csproj" --configuration Release
+        run: dotnet test "Tests/Tests.csproj" --configuration Release
 
-  # Job para construir e enviar a imagem Docker
-  build_and_push:
+  # Job para construir e publicar a imagem Docker
+  publish:
     runs-on: ubuntu-latest
-    needs: test  # Isso vai garantir que o job de testes passe antes do job de build e push
+    needs: build_and_test  # Isso vai garantir que o job de testes passe antes do job de publicação
     if: github.event_name == 'push'  # Isso garante que essa parte só será executada em um push para a branch master
 
     steps:
-      # Verificar o código do repositório
+      # Step 1: Verificar o código do repositório
       - name: Check out repository
         uses: actions/checkout@v3
 
-      # Logar no Docker Hub
+      # Step 2: Logar no Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}  
-          password: ${{ secrets.DOCKER_PASSWORD }} 
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Construir a imagem Docker
+      # Step 3: Construir a imagem Docker
       - name: Build Docker image
         run: |
           docker build -t eduardovbt/minhaapi:${{ github.sha }} -f ./MinhaApi/Dockerfile .
           docker tag eduardovbt/minhaapi:${{ github.sha }} eduardovbt/minhaapi:latest
 
-      # Enviar a imagem para o Docker Hub
+      # Step 4: Enviar a imagem para o Docker Hub
       - name: Push Docker image
         run: |
           docker push eduardovbt/minhaapi:${{ github.sha }}
