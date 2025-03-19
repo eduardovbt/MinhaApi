@@ -24,7 +24,7 @@ jobs:
       # Construir a imagem Docker
       - name: Build Docker image
         run: |
-          docker build -t marcioalmeida/mstechtest:${{ github.sha }} .
+          docker build -t marcioalmeida/mstechtest:${{ github.sha }} -f ./MinhaApi/Dockerfile .
           docker tag marcioalmeida/mstechtest:${{ github.sha }} marcioalmeida/mstechtest:latest
 
       # Enviar a imagem para o Docker Hub
