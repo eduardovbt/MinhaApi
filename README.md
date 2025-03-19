@@ -24,6 +24,42 @@ The architecture consists of the following components:
    - The service will be containerized using Docker.
    - Helm will be used to manage the Kubernetes deployment, including the creation of ConfigMaps, Secrets, and Kubernetes Resources.
 
+Sure! Here’s a brief explanation of Onion Architecture that you can add to the README:
+
+---
+
+## Onion Architecture
+![Onion Architecture]([https://example.com/images/architecture.png](https://assets.codeguru.com/uploads/2021/07/Onion1.png))
+
+Onion Architecture is a software design pattern that aims to address common challenges associated with the traditional layered architecture. It emphasizes a clear separation of concerns and promotes maintainability, testability, and flexibility. The core concept of Onion Architecture is the separation of the system into concentric layers, with the most important business logic at the center and infrastructure concerns at the outer layers.
+
+### Key Principles of Onion Architecture:
+
+1. **Core Domain (Inner Layer)**:
+   - The innermost layer is where the core business logic resides. It contains domain entities, domain services, and interfaces that define the core operations of the application.
+   - This layer is completely independent of frameworks, external systems, and infrastructure concerns. It is purely focused on the business rules.
+
+2. **Application Layer**:
+   - This layer sits just outside the core domain and orchestrates the use of the core domain. It is responsible for coordinating tasks, handling use cases, and directing the flow of data between layers.
+   - It includes application services that encapsulate business logic and operations.
+
+3. **Interface/Infrastructure Layer (Outer Layers)**:
+   - These outer layers handle external concerns such as databases, messaging systems, and web frameworks. 
+   - The infrastructure layer communicates with the core domain and application layer through interfaces defined in the inner layers, ensuring that external dependencies don’t affect the core business logic.
+   
+4. **Dependency Inversion**:
+   - The Onion Architecture relies heavily on the principle of **Dependency Inversion**. This means that dependencies are directed inward, so the core domain has no dependencies on the infrastructure or external systems.
+   - External components and services are injected into the core domain, usually through interfaces, ensuring that the core remains independent of any specific technology or framework.
+
+### Benefits of Onion Architecture:
+
+- **Separation of Concerns**: By separating the business logic from infrastructure, the application is easier to maintain and evolve over time.
+- **Testability**: Since the core business logic is independent of external systems, it becomes easier to test using unit tests.
+- **Flexibility**: Changes to the outer layers (e.g., changing the database or messaging system) don’t affect the core business logic.
+- **Scalability**: Onion Architecture allows for modular growth, where new components can be added without disrupting existing functionality.
+
+In the context of this CNPJ processing microservice, we can leverage the Onion Architecture by isolating the core CNPJ validation logic and Kafka/PostgreSQL communication into distinct layers, ensuring that the service is scalable, maintainable, and easy to test.
+
 ## Prerequisites
 
 Before getting started, ensure the following are available:
