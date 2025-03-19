@@ -47,4 +47,4 @@ jobs:
           context: .
           file: ./MinhaApi/MinhaApi/Dockerfile  # Caminho para o Dockerfile dentro do diretório 'MinhaApi'
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/dockerfordotnetapi:latest, ${{ secrets.DOCKERHUB_USERNAME }}/dockerfordotnetapi:${{ github.run_number }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/minha-api:${{ github.sha }}  # Usando o SHA do commit como tagg
