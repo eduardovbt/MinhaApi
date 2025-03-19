@@ -1,31 +1,29 @@
-# Acesse https://aka.ms/customizecontainer para saber como personalizar seu contêiner de depuração e como o Visual Studio usa este Dockerfile para criar suas imagens para uma depuração mais rápida.
+#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-# Dependendo do sistema operacional dos computadores host que compilarão ou executarão os contêineres, a imagem especificada na instrução FROM pode precisar ser alterada.
-# Para obter mais informações, consulte https://aka.ms/containercompat.
-
-# Esta fase é usada durante a execução no VS no modo rápido (Padrão para a configuração de Depuração)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-nanoserver-1809 AS base
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 80
+EXPOSE 443
+ENV SimpleProperty="hello-from-BASE-dockerfile"
 
-
-# Esta fase é usada para compilar o projeto de serviço
-FROM mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-1809 AS build
-ARG BUILD_CONFIGURATION=Release
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 WORKDIR /src
 COPY ["MinhaApi/MinhaApi.csproj", "MinhaApi/"]
-RUN dotnet restore "./MinhaApi/MinhaApi.csproj"
+RUN dotnet restore "MinhaApi/MinhaApi.csproj"
 COPY . .
 WORKDIR "/src/MinhaApi"
-RUN dotnet build "./MinhaApi.csproj" -c %BUILD_CONFIGURATION% -o /app/build
+RUN dotnet build "MinhaApi.csproj" -c Release -o /app/build
 
-# Esta fase é usada para publicar o projeto de serviço a ser copiado para a fase final
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./MinhaApi.csproj" -c %BUILD_CONFIGURATION% -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "MinhaApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Esta fase é usada na produção ou quando executada no VS no modo normal (padrão quando não está usando a configuração de Depuração)
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENV SimpleProperty="hello-from-FINAL-dockerfile"
+ENTRYPOINT ["dotnet", "MinhaApi.dll"]
+
+# Etapa 4: Definindo a imagem de execução
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
