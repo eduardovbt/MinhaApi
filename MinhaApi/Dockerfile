@@ -9,10 +9,10 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copiar o arquivo .csproj para o contêiner (ajustado para o diretório correto)
-COPY "MinhaApi/MinhaApi.csproj" "./MinhaApi/"
+COPY "MinhaApi.csproj" "./MinhaApi/"
 
 # Restaurar pacotes NuGet
-RUN dotnet restore "./MinhaApi/MinhaApi.csproj"
+RUN dotnet restore "./MinhaApi.csproj"
 
 # Copiar o restante dos arquivos para dentro do contêiner
 COPY . . 
