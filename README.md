@@ -29,7 +29,7 @@ Sure! Here’s a brief explanation of Onion Architecture that you can add to the
 ---
 
 ## Onion Architecture
-![Onion Architecture]([https://example.com/images/architecture.png](https://assets.codeguru.com/uploads/2021/07/Onion1.png))
+![Onion Architecture]([https://assets.codeguru.com/uploads/2021/07/Onion1.png]))
 
 Onion Architecture is a software design pattern that aims to address common challenges associated with the traditional layered architecture. It emphasizes a clear separation of concerns and promotes maintainability, testability, and flexibility. The core concept of Onion Architecture is the separation of the system into concentric layers, with the most important business logic at the center and infrastructure concerns at the outer layers.
 
