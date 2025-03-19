@@ -33,7 +33,7 @@ jobs:
 
       # Step 4: Rodar os testes
       - name: Run tests
-        run: dotnet test "MinhaApi.Tests/MinhaApi.Tests.csproj" --configuration Release
+        run: dotnet test "MinhaApi/Tests.csproj" --configuration Release
 
   # Job para construir e publicar a imagem Docker
   publish:
