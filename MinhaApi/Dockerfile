@@ -1,31 +1,27 @@
-# Etapa 1: Imagem base para a construção do projeto
+#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 80
+EXPOSE 443
+ENV SimpleProperty="hello-from-BASE-dockerfile"
 
-# Etapa 2: Imagem para o build do código
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
+WORKDIR /src
+COPY ["MinhaApi/MinhaApi.csproj", "MinhaApi/"]
+RUN dotnet restore "MinhaApi/MinhaApi.csproj"
+COPY . .
+WORKDIR "/src/MinhaApi"
+RUN dotnet build "MinhaApi.csproj" -c Release -o /app/build
 
-# Copiar o arquivo .csproj para o contêiner (ajustado para o diretório correto)
-COPY "MinhaApi.csproj" "./MinhaApi/"
-
-# Restaurar pacotes NuGet
-RUN dotnet restore "./MinhaApi.csproj"
-
-# Copiar o restante dos arquivos para dentro do contêiner
-COPY . . 
-
-# Definir o diretório correto para o build
-WORKDIR "/app/MinhaApi"
-
-# Construir o projeto
-RUN dotnet build "./MinhaApi.csproj" -c ${BUILD_CONFIGURATION} -o /app/build
-
-# Etapa 3: Publicação para produção
 FROM build AS publish
-RUN dotnet publish "./MinhaApi.csproj" -c ${BUILD_CONFIGURATION} -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "MinhaApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENV SimpleProperty="hello-from-FINAL-dockerfile"
+ENTRYPOINT ["dotnet", "MinhaApi.dll"]
 
 # Etapa 4: Definindo a imagem de execução
 FROM base AS final
