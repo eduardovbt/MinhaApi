@@ -30,5 +30,5 @@ jobs:
       # Enviar a imagem para o Docker Hub
       - name: Push Docker image
         run: |
-          docker push marcioalmeida/mstechtest:${{ github.sha }}
-          docker push marcioalmeida/mstechtest:latest
+          docker push eduardovbt/minhaapi:${{ github.sha }}
+          docker push eduardovbt/minhaapi:latest
