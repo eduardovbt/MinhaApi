@@ -9,14 +9,16 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY "MinhaApi.csproj" "./"
 RUN dotnet restore "./MinhaApi.csproj"
-COPY . .
+COPY . . 
 WORKDIR "/src/MinhaApi"
-RUN dotnet build "./MinhaApi.csproj" -c %BUILD_CONFIGURATION% -o /app/build
+
+# Definindo o argumento BUILD_CONFIGURATION
+ARG BUILD_CONFIGURATION=Release  # O valor padrão para BUILD_CONFIGURATION será "Release"
+RUN dotnet build "./MinhaApi.csproj" -c ${BUILD_CONFIGURATION} -o /app/build
 
 # Etapa 3: Publish para produção
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./MinhaApi.csproj" -c %BUILD_CONFIGURATION% -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./MinhaApi.csproj" -c ${BUILD_CONFIGURATION} -o /app/publish /p:UseAppHost=false
 
 # Etapa 4: Definindo a imagem de execução
 FROM base AS final
