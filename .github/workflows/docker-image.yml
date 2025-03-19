@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   pull_request:
     branches:
-      - master  # Dispara quando um PR for aceito para a branch master
+      - master  ## Dispara quando um PR for aceito para a branch master
 
 jobs:
   build:
