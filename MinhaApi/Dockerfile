@@ -9,7 +9,7 @@ ENV SimpleProperty="hello-from-BASE-dockerfile"
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 WORKDIR /src
 COPY ["MinhaApi/MinhaApi.csproj", "MinhaApi/"]
-RUN dotnet restore "MinhaApi/MinhaApi.csproj"
+RUN dotnet restore "MinhaApi/MinhaApi/MinhaApi.csproj"
 COPY . .
 WORKDIR "/src/MinhaApi"
 RUN dotnet build "MinhaApi.csproj" -c Release -o /app/build
@@ -21,10 +21,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENV SimpleProperty="hello-from-FINAL-dockerfile"
-ENTRYPOINT ["dotnet", "MinhaApi.dll"]
-
-# Etapa 4: Definindo a imagem de execução
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "MinhaApi.dll"]
