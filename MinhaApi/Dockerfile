@@ -6,17 +6,24 @@ EXPOSE 8081
 
 # Etapa 2: Imagem para o build do código
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-COPY "MinhaApi.csproj" "./"
-RUN dotnet restore "./MinhaApi.csproj"
-COPY . . 
-WORKDIR "/src/MinhaApi"
+WORKDIR /app
 
-# Definindo o argumento BUILD_CONFIGURATION
-ARG BUILD_CONFIGURATION=Release  # O valor padrão para BUILD_CONFIGURATION será "Release"
+# Copiar o arquivo .csproj para o contêiner (ajustado para o diretório correto)
+COPY "MinhaApi/MinhaApi.csproj" "./MinhaApi/"
+
+# Restaurar pacotes NuGet
+RUN dotnet restore "./MinhaApi/MinhaApi.csproj"
+
+# Copiar o restante dos arquivos para dentro do contêiner
+COPY . . 
+
+# Definir o diretório correto para o build
+WORKDIR "/app/MinhaApi"
+
+# Construir o projeto
 RUN dotnet build "./MinhaApi.csproj" -c ${BUILD_CONFIGURATION} -o /app/build
 
-# Etapa 3: Publish para produção
+# Etapa 3: Publicação para produção
 FROM build AS publish
 RUN dotnet publish "./MinhaApi.csproj" -c ${BUILD_CONFIGURATION} -o /app/publish /p:UseAppHost=false
 
