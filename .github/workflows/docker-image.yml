@@ -7,7 +7,7 @@ on:
 
   push:
     branches:
-      - main  # A execução do build e push só acontecerá quando houver push para a branch principal
+      - master  # A execução do build e push só acontecerá quando houver push para a branch principal
 
 jobs:
   
