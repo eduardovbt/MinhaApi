@@ -103,7 +103,7 @@ Para facilitar os testes da aplicação, foi adicionado um **controller** chamad
 
 ### Endpoints Expostos
 
-- **POST /api/cnpj**: Envia uma mensagem de CNPJ para o Kafka.
+- **POST /api/publish/message**: Envia uma mensagem de CNPJ para o Kafka.
   - Body: JSON com o CNPJ a ser processado.
   
 Exemplo de request:
@@ -154,6 +154,3 @@ A estrutura do projeto segue uma abordagem modular com base na arquitetura Onion
 - **Docker**: Usado para containerizar o ambiente de desenvolvimento e produção.
 - **PostgreSQL**: Banco de dados utilizado para persistir os CNPJs válidos.
 - **Kubernetes**: Usado para orquestrar os containers em produção.
-```
-
-Agora, basta copiar e colar este conteúdo no arquivo `README.md` do seu repositório no GitHub. Isso irá gerar um README bem estruturado com todas as informações necessárias sobre o seu projeto.
