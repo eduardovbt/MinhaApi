@@ -1,6 +1,4 @@
-Claro! Aqui está o conteúdo do README em formato Markdown, pronto para ser copiado e colado no seu repositório no GitHub:
 
-```markdown
 # Microsserviço para Processamento de CNPJ com Kafka, PostgreSQL e Kubernetes
 
 ## Visão Geral
