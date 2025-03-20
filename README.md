@@ -3,7 +3,7 @@
 
 ## Visão Geral
 
-Este projeto foi criado para atender aos requisitos de um teste técnico, cujo objetivo é criar um microsserviço que processa registros de CNPJ utilizando Kafka, PostgreSQL e Kubernetes.
+Este projeto foi criado para atender aos requisitos de um teste técnico, cujo objetivo é criar um microsserviço que processa registros de CNPJ utilizando Kafka, PostgreSQL com conteinerização possibilitando a utilização do kubernetes .
 
 O serviço realiza as seguintes operações:
 - Consome mensagens de CNPJ do Kafka.
