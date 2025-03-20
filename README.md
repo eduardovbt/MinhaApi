@@ -43,7 +43,7 @@ Para facilitar o desenvolvimento e a configuração do ambiente, foi adicionado 
 ### Configurações do Docker Compose
 
 ```yaml
-version: '3'
+
 services:
   postgres:
     image: postgres
@@ -53,7 +53,17 @@ services:
       POSTGRES_PASSWORD: "nstech123"
     ports:
       - "5432:5432"
-  
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    networks:
+      - net
+    ports:
+      - 2181:2181
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
   kafka:
     image: confluentinc/cp-kafka:latest
     networks:
@@ -61,13 +71,30 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9092:9092"
-      - "29092:29092"
-  
-  zookeeper:
-    image: wurstmeister/zookeeper:3.4.6
-    ports:
-      - "2181:2181"
+      - 9092:9092
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      TOPIC_AUTO_CREATE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  create-topic:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - kafka
+    entrypoint: ["sh", "-c", "until kafka-topics --bootstrap-server kafka:29092 --list >/dev/null 2>&1; do sleep 10; done; kafka-topics --bootstrap-server kafka:29092 --create --topic cnpj-validate-topic --partitions 1 --replication-factor 1"]
+    networks:
+      - net
+
+networks:
+  net:
+    driver: bridge
+
 ```
 
 ## Como Usar
