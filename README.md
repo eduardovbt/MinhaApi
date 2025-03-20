@@ -1,214 +1,134 @@
-# CNPJ Processing Microservice
+Claro! Aqui está o conteúdo do README em formato Markdown, pronto para ser copiado e colado no seu repositório no GitHub:
 
-## Overview
+```markdown
+# Microsserviço para Processamento de CNPJ com Kafka, PostgreSQL e Kubernetes
 
-This microservice is designed to process CNPJ records using Kafka, PostgreSQL, and Kubernetes. The service will consume CNPJ messages from Kafka, validate them, persist valid CNPJs in a PostgreSQL database, and republish results to Kafka. If the CNPJ is valid, it will be sent to a "success" Kafka topic. If invalid, an error message will be published to an "error" Kafka topic.
+## Visão Geral
 
-## Architecture Overview
+Este projeto foi criado para atender aos requisitos de um teste técnico, cujo objetivo é criar um microsserviço que processa registros de CNPJ utilizando Kafka, PostgreSQL e Kubernetes.
 
-The architecture consists of the following components:
+O serviço realiza as seguintes operações:
+- Consome mensagens de CNPJ do Kafka.
+- Valida os CNPJs.
+- Persiste os CNPJs válidos no banco de dados PostgreSQL.
+- Publica os resultados de volta no Kafka.
+  - Se o CNPJ for válido, ele é enviado para o tópico `success` do Kafka.
+  - Se inválido, uma mensagem de erro é publicada no tópico `error` do Kafka.
 
-1. **Kafka**:
-   - Kafka is used as a message queue to publish and consume CNPJ records.
-   - The microservice will subscribe to an input topic (`cnpj-input`), validate the CNPJ, and republish the results to either the `cnpj-validated` (valid) or `cnpj-error` (invalid) topic.
+## Visão Geral da Arquitetura
 
-2. **PostgreSQL**:
-   - A PostgreSQL database will store valid CNPJ records with their statuses.
-   - The `CnpjRecords` table will have fields like `Id`, `Cnpj`, `ValidatedAt`, and `Status`.
+O microserviço foi desenvolvido com **.NET 8**, utilizando o **Entity Framework Core** (ORM) para a comunicação com o banco de dados PostgreSQL. O serviço também usa o **Kafka** como um barramento de mensagens (ESB - Enterprise Service Bus) para rotear as mensagens entre os produtores e consumidores.
 
-3. **Kubernetes**:
-   - The service will be deployed on a Kubernetes cluster (e.g., Minikube or k3s).
-   - A custom Helm chart will be used to deploy the service, including the necessary configurations for Kafka, PostgreSQL, and environment variables.
+O projeto segue a **Onion Architecture**, que é baseada no princípio de inversão de controle, onde as camadas são dispostas de forma concêntrica, com o núcleo representando o domínio central da aplicação. Diferente das arquiteturas tradicionais de camadas, a arquitetura em cebola não depende da camada de dados, mas sim dos modelos de domínio reais.
 
-4. **Docker & Helm**:
-   - The service will be containerized using Docker.
-   - Helm will be used to manage the Kubernetes deployment, including the creation of ConfigMaps, Secrets, and Kubernetes Resources.
+![Imagem Ilustrativa](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxC67hvjpPQ6D_xe_HnvKfy9n-bUw1eDZlag&s)
 
-Sure! Here’s a brief explanation of Onion Architecture that you can add to the README:
+## Como Instalar
 
----
+### Dependências
 
-## Onion Architecture
-![Onion Architecture]([https://assets.codeguru.com/uploads/2021/07/Onion1.png]))
+- **Kafka**
+- **PostgreSQL**
 
-Onion Architecture is a software design pattern that aims to address common challenges associated with the traditional layered architecture. It emphasizes a clear separation of concerns and promotes maintainability, testability, and flexibility. The core concept of Onion Architecture is the separation of the system into concentric layers, with the most important business logic at the center and infrastructure concerns at the outer layers.
+Para facilitar o desenvolvimento e a configuração do ambiente, foi adicionado um arquivo `docker-compose.yml`. Ele irá preparar o ambiente de desenvolvimento, subindo as imagens necessárias para o Kafka e o PostgreSQL, além de executar ações como a criação de tópicos no Kafka e a execução de scripts SQL para a criação das tabelas no PostgreSQL.
 
-### Key Principles of Onion Architecture:
+### Passo a Passo para Subir o Ambiente
 
-1. **Core Domain (Inner Layer)**:
-   - The innermost layer is where the core business logic resides. It contains domain entities, domain services, and interfaces that define the core operations of the application.
-   - This layer is completely independent of frameworks, external systems, and infrastructure concerns. It is purely focused on the business rules.
+1. Abra o prompt de comando.
+2. Navegue até o diretório `src/UI/Nstech.Mdm.Api`.
+3. Execute o seguinte comando para subir o ambiente:
 
-2. **Application Layer**:
-   - This layer sits just outside the core domain and orchestrates the use of the core domain. It is responsible for coordinating tasks, handling use cases, and directing the flow of data between layers.
-   - It includes application services that encapsulate business logic and operations.
+   ```bash
+   docker-compose up -d
+   ```
 
-3. **Interface/Infrastructure Layer (Outer Layers)**:
-   - These outer layers handle external concerns such as databases, messaging systems, and web frameworks. 
-   - The infrastructure layer communicates with the core domain and application layer through interfaces defined in the inner layers, ensuring that external dependencies don’t affect the core business logic.
-   
-4. **Dependency Inversion**:
-   - The Onion Architecture relies heavily on the principle of **Dependency Inversion**. This means that dependencies are directed inward, so the core domain has no dependencies on the infrastructure or external systems.
-   - External components and services are injected into the core domain, usually through interfaces, ensuring that the core remains independent of any specific technology or framework.
+### Configurações do Docker Compose
 
-### Benefits of Onion Architecture:
-
-- **Separation of Concerns**: By separating the business logic from infrastructure, the application is easier to maintain and evolve over time.
-- **Testability**: Since the core business logic is independent of external systems, it becomes easier to test using unit tests.
-- **Flexibility**: Changes to the outer layers (e.g., changing the database or messaging system) don’t affect the core business logic.
-- **Scalability**: Onion Architecture allows for modular growth, where new components can be added without disrupting existing functionality.
-
-In the context of this CNPJ processing microservice, we can leverage the Onion Architecture by isolating the core CNPJ validation logic and Kafka/PostgreSQL communication into distinct layers, ensuring that the service is scalable, maintainable, and easy to test.
-
-## Prerequisites
-
-Before getting started, ensure the following are available:
-
-- .NET SDK (version compatible with the project)
-- Docker
-- Helm (for Kubernetes deployment)
-- Kafka and PostgreSQL running (locally or in a cloud environment)
-- A local Kubernetes cluster (e.g., Minikube, k3s)
-
-## Setup Instructions
-
-### 1. Clone the Repository
-
-```bash
-git clone <repository-url>
-cd <repository-name>
+```yaml
+version: '3'
+services:
+  postgres:
+    image: postgres
+    volumes:
+      - ./01-create-cnpj-records.sql:/docker-entrypoint-initdb.d/01-create-cnpj-records.sql
+    environment:
+      POSTGRES_PASSWORD: "nstech123"
+    ports:
+      - "5432:5432"
+  
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    networks:
+      - net
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+  
+  zookeeper:
+    image: wurstmeister/zookeeper:3.4.6
+    ports:
+      - "2181:2181"
 ```
 
-### 2. Build the Application
+## Como Usar
 
-Use the following command to build the microservice:
+Para facilitar os testes da aplicação, foi adicionado um **controller** chamado `CnpjIntegrationController`. Este controller tem como objetivo postar uma mensagem na fila do Kafka, permitindo que o consumidor de integração execute a operação de validação e persistência dos CNPJs.
 
-```bash
-dotnet build
+### Endpoints Expostos
+
+- **POST /api/cnpj**: Envia uma mensagem de CNPJ para o Kafka.
+  - Body: JSON com o CNPJ a ser processado.
+  
+Exemplo de request:
+
+```json
+{
+  "cnpj": "12345678000195"
+}
 ```
 
-### 3. Test the Application
+## CI/CD
 
-To run the unit tests for CNPJ validation and Kafka message handling, use:
+O projeto foi configurado com uma **pipeline de CI/CD** simplificada que executa os seguintes passos:
 
-```bash
-dotnet test
+1. **Execução de Testes**: A pipeline executa testes automatizados sempre que um *pull request* é enviado.
+2. **Publicação de Imagem Docker**: A publicação da imagem Docker é realizada apenas quando há um *push* no branch `main`.
+
+### Passos na Pipeline
+
+1. **Execução de Testes**: Testes unitários e de integração são executados em todas as PRs para garantir que o código esteja funcionando corretamente.
+2. **Publicação da Imagem Docker**: Após a aprovação de um PR e o merge no branch `main`, a pipeline constrói e publica a imagem Docker no repositório de contêineres.
+
+## Estrutura de Diretórios
+
+A estrutura do projeto segue uma abordagem modular com base na arquitetura Onion. Aqui está uma visão geral das pastas principais:
+
+```
+/src
+  /UI
+    /Nstech.Mdm.Api      # Contém a API e controllers do microsserviço
+  /Core
+    /Domain              # Entidades e modelos de domínio
+    /Services            # Lógica de negócios e regras de processamento
+    /Abstract            # Contratos 
+  /Infrastructure
+    /Data                # Implementação do acesso a dados (EF Core,postgres) 
+    /Messaging           # Implementação do Kafka para comunicação (kafka,Masstransit)
+    /DI                  # Implementação de controle de dependencia
+  /Tests
+    /Unity                # Implementação de testes unitarios(Xunity)
 ```
 
-### 4. Run the Application Locally
+## Tecnologias Usadas
 
-To run the service locally, use the following command:
-
-```bash
-dotnet run
+- **.NET 8**: Framework utilizado para o desenvolvimento do microsserviço.
+- **Entity Framework Core**: ORM para acesso ao banco de dados PostgreSQL.
+- **Kafka**: Broker de mensagens utilizado para comunicação entre os microsserviços.
+- **Docker**: Usado para containerizar o ambiente de desenvolvimento e produção.
+- **PostgreSQL**: Banco de dados utilizado para persistir os CNPJs válidos.
+- **Kubernetes**: Usado para orquestrar os containers em produção.
 ```
 
-Ensure the necessary environment variables (e.g., Kafka and PostgreSQL details) are set for local execution.
-
-## Dockerization
-
-To build a Docker image for the microservice:
-
-1. Create a `Dockerfile` to containerize the service.
-
-Example `Dockerfile`:
-
-```Dockerfile
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
-WORKDIR /app
-EXPOSE 80
-
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
-COPY ["CnpjProcessingMicroservice/CnpjProcessingMicroservice.csproj", "CnpjProcessingMicroservice/"]
-RUN dotnet restore "CnpjProcessingMicroservice/CnpjProcessingMicroservice.csproj"
-COPY . .
-WORKDIR "/src/CnpjProcessingMicroservice"
-RUN dotnet build "CnpjProcessingMicroservice.csproj" -c Release -o /app/build
-
-FROM build AS publish
-RUN dotnet publish "CnpjProcessingMicroservice.csproj" -c Release -o /app/publish
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "CnpjProcessingMicroservice.dll"]
-```
-
-Then, build and run the Docker container:
-
-```bash
-docker build -t cnpj-processing-service .
-docker run -d -p 8080:80 cnpj-processing-service
-```
-
-## Kubernetes & Helm Chart
-
-### 1. Create a Helm Chart
-
-A custom Helm chart will be used to deploy the service. The Helm chart will include Kubernetes resources like:
-
-- Deployment
-- Service
-- ConfigMap/Secret for environment variables (Kafka broker and PostgreSQL details)
-
-To create a Helm chart:
-
-```bash
-helm create cnpj-processing
-```
-
-Modify the chart to include the necessary values, such as Kafka and PostgreSQL details. Then, deploy the service to a Kubernetes cluster:
-
-```bash
-helm install cnpj-processing ./cnpj-processing
-```
-
-### 2. Kubernetes Deployment
-
-Ensure that the Kubernetes cluster is running. For Minikube, start it with:
-
-```bash
-minikube start
-```
-
-Then, deploy the service:
-
-```bash
-kubectl apply -f deployment.yaml
-```
-
-## Makefile
-
-A `Makefile` is included to streamline common tasks like build, test, and deploy.
-
-Example `Makefile`:
-
-```makefile
-build:
-    dotnet build
-
-test:
-    dotnet test
-
-docker-build:
-    docker build -t cnpj-processing-service .
-
-docker-run:
-    docker run -d -p 8080:80 cnpj-processing-service
-
-deploy:
-    helm install cnpj-processing ./cnpj-processing
-```
-
-You can run these tasks using the following commands:
-
-```bash
-make build
-make test
-make docker-build
-make deploy
-```
-
-
-Good luck!
+Agora, basta copiar e colar este conteúdo no arquivo `README.md` do seu repositório no GitHub. Isso irá gerar um README bem estruturado com todas as informações necessárias sobre o seu projeto.
